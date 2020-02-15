@@ -1,0 +1,113 @@
+import RPi.GPIO as GPIO
+
+from time import sleep
+
+GPIO.setmode(GPIO.BCM)
+
+value1 = 0
+value2 = 0
+ldr1 = 17
+ldr2=18
+
+def rc_t1(ldr1):
+    count1 = 0
+ 
+    #Output on the pin for
+    GPIO.setup(ldr1, GPIO.OUT)
+    GPIO.output(ldr1, False)
+    sleep(0.1)
+ 
+    #Change the pin back to input
+    GPIO.setup(ldr1, GPIO.IN)
+ 
+    #Count until the pin goes high
+    while (GPIO.input(ldr1) == 0):
+        count1 += 1
+ 
+    return count1
+
+def rc_t2(ldr2):
+    count2 = 0
+ 
+    #Output on the pin for
+    GPIO.setup(ldr2, GPIO.OUT)
+    GPIO.output(ldr2, False)
+    sleep(0.1)
+ 
+    #Change the pin back to input
+    GPIO.setup(ldr2, GPIO.IN)
+ 
+    #Count until the pin goes high
+    while (GPIO.input(ldr2) == 0):
+        count2 += 1
+ 
+    return count2
+
+def fwd_run():
+    in1 = 24
+    in2 = 23
+    en = 25
+
+
+    GPIO.setup(in1,GPIO.OUT)
+    GPIO.setup(in2,GPIO.OUT)
+    GPIO.setup(en,GPIO.OUT)
+
+    GPIO.output(in1,GPIO.LOW)
+    GPIO.output(in2,GPIO.LOW)
+
+    print("Forward")
+    print(value1)
+    print(value2)
+    GPIO.output(in1,GPIO.HIGH)
+
+    GPIO.output(in2,GPIO.LOW)
+
+    GPIO.output(en,GPIO.HIGH)
+
+
+def back_run():
+    in1 = 24
+    in2 = 23
+    en = 25
+
+
+    GPIO.setup(in1,GPIO.OUT)
+    GPIO.setup(in2,GPIO.OUT)
+    GPIO.setup(en,GPIO.OUT)
+
+    GPIO.output(in1,GPIO.LOW)
+    GPIO.output(in2,GPIO.LOW)
+
+    print("Backward")
+    print(value1)
+    print(value2)
+    GPIO.output(in1,GPIO.LOW)
+
+    GPIO.output(in2,GPIO.HIGH)
+
+    GPIO.output(en,GPIO.HIGH)
+
+    
+    
+
+
+try:
+	while True:
+		value1 = rc_t1(ldr1)
+		value2 = rc_t2(ldr2)
+		if (abs( value1-value2 )<=60):
+			print("no move")
+			print(value1)
+			print(value2)
+	    	
+		elif ( (value1-value2)>=100):
+			back_run()
+		elif ( (value2-value1)>=100):
+                    fwd_run()
+	        
+except KeyboardInterrupt:
+    pass
+finally:
+    GPIO.cleanup()
+
